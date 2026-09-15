@@ -37,7 +37,6 @@ Additional testing datasets:
 - Recall
 - F1-score
 - False Positive Rate (FPR)
-- Confusion matrix
 
 ## Team
 Christian McKenzie - Research / Training Data
