@@ -6,8 +6,8 @@ The datasets are not included in the repository.
 
 Datasets used:
 - CEAS-08: https://zenodo.org/records/8339691?preview_file=CEAS_08.csv
-Enron: https://zenodo.org/records/8339691?preview_file=enron.csv
-Ling: https://zenodo.org/records/8339691?preview_file=ling.csv
+- Enron: https://zenodo.org/records/8339691?preview_file=enron.csv
+- Ling: https://zenodo.org/records/8339691?preview_file=ling.csv
 
 ## Citations
 
