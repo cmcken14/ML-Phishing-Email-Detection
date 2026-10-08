@@ -1,3 +1,4 @@
+import joblib
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
@@ -48,11 +49,20 @@ def prepare_features():
     X_train = vectorizer.fit_transform(X_train_text)
     X_test = vectorizer.transform(X_test_text)
 
+    # Save the TF-IDF vectorizer
+    joblib.dump(
+        vectorizer,
+        "models/tfidf_vectorizer.joblib"
+    )
+
     print("\nTF-IDF Feature Extraction")
     print("Number of features:", X_train.shape[1])
     print("Training matrix shape:", X_train.shape)
     print("Testing matrix shape:", X_test.shape)
 
+    print("\nVectorizer export complete.")
+    print("Saved: models/tfidf_vectorizer.joblib")
+    
     return X_train, X_test, y_train, y_test, vectorizer
 
 
