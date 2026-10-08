@@ -1,3 +1,4 @@
+import joblib
 from sklearn.linear_model import LogisticRegression
 
 from feature_extraction import prepare_features
@@ -61,6 +62,15 @@ def main():
             feature_names[index],
             round(coefficients[index], 4)
         )
+
+    # Save the trained LR model
+    joblib.dump(
+        model,
+        "models/logistic_regression.joblib"
+    )
+
+    print("\nModel export complete.")
+    print("Saved: models/logistic_regression.joblib")
 
 
 if __name__ == "__main__":

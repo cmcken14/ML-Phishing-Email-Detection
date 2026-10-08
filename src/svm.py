@@ -1,3 +1,4 @@
+import joblib
 from sklearn.svm import SVC
 
 from feature_extraction import prepare_features
@@ -37,6 +38,14 @@ def main():
 
     print_results("SVM", results)
 
+    # Save the trained SVM model
+    joblib.dump(
+        model,
+        "models/svm.joblib"
+    )
+
+    print("\nModel export complete.")
+    print("Saved: models/svm.joblib")
 
 if __name__ == "__main__":
     main()

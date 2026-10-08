@@ -1,3 +1,4 @@
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 
 from feature_extraction import prepare_features
@@ -37,6 +38,15 @@ def main():
     results = evaluate_model(y_test, y_pred)
 
     print_results("Random Forest", results)
+
+    # Save the trained RF Model
+    joblib.dump(
+        model,
+        "models/random_forest.joblib"
+    )
+
+    print("\nModel export complete.")
+    print("Saved: models/random_forest.joblib")
 
 
 if __name__ == "__main__":
