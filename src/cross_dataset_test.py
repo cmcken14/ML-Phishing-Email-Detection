@@ -97,9 +97,10 @@ def main():
         print("----------------------------------------")
 
         for metric, score in results.items():
-            print(
-                f"{metric}: {score:.4f}"
-            )
+            if metric in ["False Positives", "False Negatives"]:
+                print(f"{metric}: {score}")
+            else:
+                print(f"{metric}: {score:.4f}")
 
         results["Model"] = model_name
 
@@ -117,7 +118,10 @@ def main():
             "Precision",
             "Recall",
             "F1 Score",
-            "False Positive Rate"
+            "False Positive Rate",
+	    "False Positives",
+	    "False Negative Rate",
+	    "False Negatives"
         ]
     ]
 

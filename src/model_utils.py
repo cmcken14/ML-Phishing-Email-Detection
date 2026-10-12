@@ -16,13 +16,17 @@ def evaluate_model(y_test, y_pred):
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
 
     false_positive_rate = fp / (fp + tn)
+    false_negative_rate = fn / (fn + tp)
 
     results = {
         "Accuracy": accuracy,
         "Precision": precision,
         "Recall": recall,
         "F1 Score": f1,
-        "False Positive Rate": false_positive_rate
+        "False Positive Rate": false_positive_rate,
+	"False Positives": fp,
+	"False Negative Rate": false_negative_rate,
+	"False Negatives": fn
     }
 
     return results
