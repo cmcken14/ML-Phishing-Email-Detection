@@ -39,25 +39,61 @@ if uploaded_file is not None:
         disabled=True
     )
 
+    # Load the saved models and vectorizer
+    vectorizer = joblib.load("models/tfidf_vectorizer.joblib")
+    logistic_model = joblib.load("models/logistic_regression.joblib")
+    forest_model = joblib.load("models/random_forest.joblib")
+    svm_model = joblib.load("models/svm.joblib")
+
+    # Convert the email into TF-IDF features
+    email_features = vectorizer.transform([email_data["text"]])
+
+    # Get predictions from each model
+    logistic_prediction = logistic_model.predict(email_features)[0]
+    forest_prediction = forest_model.predict(email_features)[0]
+    svm_prediction = svm_model.predict(email_features)[0]
+
     st.subheader("Model Analysis")
+
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.write("### Logistic Regression")
-        st.info("Model result will appear here.")
+        if logistic_prediction == 1:
+            st.error("Likely Phishing")
+        else:
+            st.success("Likely Legitimate")
 
     with col2:
         st.write("### Random Forest")
-        st.info("Model result will appear here.")
+        if forest_prediction == 1:
+            st.error("Likely Phishing")
+        else:
+            st.success("Likely Legitimate")
 
     with col3:
         st.write("### SVM")
-        st.info("Model result will appear here.")
+        if svm_prediction == 1:
+            st.error("Likely Phishing")
+        else:
+            st.success("Likely Legitimate")
 
     st.subheader("Overall Result")
 
-    st.warning(
-        "Overall results will appear here "
-        "after the models are connected."
-    )
+    phishing_votes = sum([
+        logistic_prediction,
+        forest_prediction,
+        svm_prediction
+    ])
+
+    if phishing_votes >= 2:
+        st.error(
+            f"Likely Phishing — {phishing_votes} out of 3 models "
+            "flagged this email."
+        )
+    else:
+        st.success(
+            f"Likely Legitimate — {3 - phishing_votes} out of 3 models "
+            "classified this email as legitimate."
+        )
