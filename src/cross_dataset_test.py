@@ -10,46 +10,34 @@ from model_utils import evaluate_model
 
 CEAS_PATH = "data/processed/CEAS_08_preprocessed.csv"
 ENRON_PATH = "data/processed/Enron_preprocessed.csv"
+DF_PATH = "data/processed/df_preprocessed.csv"
+SPAMASSASIN_PATH = "data/processed/SpamAssasin_preprocessed.csv"
+KD_PATH = "data/processed/kd_preprocessed.csv"
 
 
 def main():
-    # Load both datasets
+    # Load all datasets
     ceas = pd.read_csv(CEAS_PATH)
     enron = pd.read_csv(ENRON_PATH)
+    df = pd.read_csv(DF_PATH)
+    spamassasin = pd.read_csv(SPAMASSASIN_PATH)
+    kd = pd.read_csv(KD_PATH)
 
     print("Datasets loaded.")
 
-    print("CEAS_08 training emails:", len(ceas))
-    print("Enron testing emails:", len(enron))
+    print("CEAS_08 emails:", len(ceas))
+    print("Enron emails:", len(enron))
+    print("DF emails:", len(df))
+    print("SpamAssasin emails:", len(spamassasin))
+    print("KD emails:", len(kd))
 
-    # CEAS_08 is only used for training
-    X_train_text = ceas["text"]
-    y_train = ceas["label"]
-
-    # Enron is only used for external testing
-    X_test_text = enron["text"]
-    y_test = enron["label"]
-
-    print("\nCreating TF-IDF features...")
-
-    # TF-IDF is fit only on CEAS_08
-    vectorizer = TfidfVectorizer(
-        max_features=10000,
-        stop_words="english",
-        lowercase=True
-    )
-
-    X_train = vectorizer.fit_transform(
-        X_train_text
-    )
-
-    # Enron uses the TF-IDF vocabulary learned from CEAS_08
-    X_test = vectorizer.transform(
-        X_test_text
-    )
-
-    print("CEAS training matrix:", X_train.shape)
-    print("Enron testing matrix:", X_test.shape)
+    # Define training and testing dataset pairs
+    experiments = [
+        ("CEAS_08", ceas, "Enron", enron),
+        ("Enron", enron, "CEAS_08", ceas),
+        ("DF", df, "SpamAssasin", spamassasin),
+        ("DF", df, "KD", kd)
+    ]
 
     models = {
         "Logistic Regression": LogisticRegression(
@@ -63,65 +51,103 @@ def main():
             n_jobs=-1
         ),
 
-	"SVM": SVC(
-	    kernel="linear",
+        "SVM": SVC(
+            kernel="linear",
             random_state=42
-    	)
+        )
     }
 
     results_list = []
 
-    for model_name, model in models.items():
+    for train_name, train_df, test_name, test_df in experiments:
 
-        print(f"\nTraining {model_name} on CEAS_08...")
+        print(f"\nTraining dataset: {train_name}")
+        print(f"Testing dataset: {test_name}")
 
-        model.fit(
-            X_train,
-            y_train
+        # Training emails
+        X_train_text = train_df["text"]
+        y_train = train_df["label"]
+
+        # External testing emails
+        X_test_text = test_df["text"]
+        y_test = test_df["label"]
+
+        print("\nCreating TF-IDF features...")
+
+        # TF-IDF is fit only on the training dataset
+        vectorizer = TfidfVectorizer(
+            max_features=10000,
+            stop_words="english",
+            lowercase=True
         )
 
-        print(
-            f"Testing {model_name} on Enron..."
+        X_train = vectorizer.fit_transform(
+            X_train_text
         )
 
-        predictions = model.predict(
-            X_test
+        # Testing dataset uses the TF-IDF vocabulary learned from training
+        X_test = vectorizer.transform(
+            X_test_text
         )
 
-        results = evaluate_model(
-            y_test,
-            predictions
-        )
+        print("Training matrix:", X_train.shape)
+        print("Testing matrix:", X_test.shape)
 
-        print(f"\n{model_name} Results")
-        print("----------------------------------------")
+        for model_name, model in models.items():
 
-        for metric, score in results.items():
-            if metric in ["False Positives", "False Negatives"]:
-                print(f"{metric}: {score}")
-            else:
-                print(f"{metric}: {score:.4f}")
+            print(f"\nTraining {model_name} on {train_name}...")
 
-        results["Model"] = model_name
+            model.fit(
+                X_train,
+                y_train
+            )
 
-        results_list.append(results)
+            print(
+                f"Testing {model_name} on {test_name}..."
+            )
 
-    # Put both model results into one table
+            predictions = model.predict(
+                X_test
+            )
+
+            results = evaluate_model(
+                y_test,
+                predictions
+            )
+
+            print(f"\n{model_name} Results")
+            print("----------------------------------------")
+
+            for metric, score in results.items():
+                if metric in ["False Positives", "False Negatives"]:
+                    print(f"{metric}: {score}")
+                else:
+                    print(f"{metric}: {score:.4f}")
+
+            results["Training Dataset"] = train_name
+            results["Testing Dataset"] = test_name
+            results["Model"] = model_name
+
+            results_list.append(results)
+
+    # Put all model results into one table
     results_df = pd.DataFrame(
         results_list
     )
 
     results_df = results_df[
         [
+            "Training Dataset",
+            "Testing Dataset",
             "Model",
             "Accuracy",
             "Precision",
             "Recall",
             "F1 Score",
             "False Positive Rate",
-	    "False Positives",
-	    "False Negative Rate",
-	    "False Negatives"
+            "False Positives",
+            "False Negative Rate",
+            "False Negatives"
         ]
     ]
 
@@ -135,12 +161,12 @@ def main():
     )
 
     results_df.to_csv(
-        "results/cross_dataset_enron.csv",
+        "results/cross_dataset_comparison.csv",
         index=False
     )
 
     print("\nResults saved to:")
-    print("results/cross_dataset_enron.csv")
+    print("results/cross_dataset_comparison.csv")
 
 
 if __name__ == "__main__":
