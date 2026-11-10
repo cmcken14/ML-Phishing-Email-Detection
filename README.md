@@ -17,10 +17,13 @@ The models being evaluated are:
 ## Datasets
 Primary training dataset:
 - CEAS_08
+- DF
 
 Additional testing datasets:
 - Enron
 - Ling
+- KD
+- SpamAssassin
 
 ## Project Pipeline
 1. Load public email datasets
