@@ -3,3 +3,18 @@ data/processed/*
 
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+
+.venv/
+.venv311/
+.venv_clean/
+venv/
+env/
+
+__pycache__/
+*.pyc
+*.pyo
+
+.env
+.env.*
+
+.vscode/
